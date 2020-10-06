@@ -1,0 +1,250 @@
+     1	      IDENTIFICATION DIVISION.							14OCT19 10:31:02  PAGE	  1
+     2	      PROGRAM-ID. SALES.
+     3	     *INSTALLATION. S500.
+     4	     *DATE-WRITTEN. OCTOBER 7,2019.
+     5	     *DATE-COMPILED. OCTOBER 7,2019.
+     6	     *SECURITY. EXCLUSIVE FOR SIR BABY BOY.
+     7	     *REMARKS. FINALS.
+     8	      ENVIRONMENT DIVISION.
+     9	      CONFIGURATION SECTION.
+    10	      INPUT-OUTPUT SECTION.
+    11	      FILE-CONTROL.
+    12            SELECT INFILE ASSIGN TO "C:\FCOB\STORAGE.TXT".
+    13            SELECT OUTFILE ASSIGN TO "C:\FCOB\RESULT.TXT".
+    14            SELECT TOTFILE ASSIGN TO "C:\FCOB\TOTS.TXT".
+    15	      DATA DIVISION.
+    16	      FILE SECTION.
+    17	      FD INFILE.
+    18	      01 INREC.
+    19		  05 PRODUCTCODE PIC X(7).
+    20		  05 PRODUCTNAME PIC A(15).
+    21		  05 QUANTITY PIC 9(3).
+    22		  05 PRICE PIC 9(5).
+    23	      FD OUTFILE.
+    24	      01 OUTREC.
+    25		  05 PCODE PIC X(7).
+    26		  05 PNAME PIC A(15).
+    27		  05 QTY PIC ZZ9.
+    28		  05 P PIC ZZ,999.
+    29	      FD TOTFILE.
+    30	      01 TOT-REC.
+    31		  05 FILLER PIC X(80).
+    32	      WORKING-STORAGE SECTION.
+    33	      01 HDG1.
+    34		  05 FILLER PIC X(32).
+    35            05 FILLER PIC X(16) VALUE "SALES  INVENTORY".
+    36		  05 FILLER PIC X(32).
+    37	      01 HDG2.
+    38		  05 FILLER PIC X(16).
+    39            05 FILLER PIC X(5) VALUE "CODE ".
+    40		  05 FILLER PIC X(8).
+    41            05 FILLER PIC X(14) VALUE "PRODUCT  NAME ".
+    42		  05 FILLER PIC X(7).
+    43            05 FILLER PIC X(3) VALUE "QTY".
+    44		  05 FILLER PIC X(6).
+    45            05 FILLER PIC X(5) VALUE "PRICE".
+    46		  05 FILLER PIC X(16).
+    47	      01 DISP-REC.
+    48		  05 FILLER PIC X(16).
+    49		  05 DPCODE PIC X(7).
+    50		  05 FILLER PIC X(6).
+    51		  05 DPNAME PIC A(15).
+    52		  05 FILLER PIC X(6).
+    53		  05 DQTY PIC ZZ9.
+    54		  05 FILLER PIC X(6).
+    55		  05 DP PIC ZZ,999.
+    56		  05 FILLER PIC X(16).
+    57	      01 ASSETS.
+    58		  05 FILLER PIC X(20).
+    59            05 FILLER PIC X(13) VALUE "RECORDS NUM: ".
+    60		  05 A-COUNT PIC ZZ9.    61		  05 FILLER PIC X(44).							14OCT19 10:31:02  PAGE	  2
+    62		  05 FILLER PIC X(80).
+    63		  05 FILLER PIC X(20).
+    64            05 FILLER PIC X(11) VALUE "TOTAL QTY: ".
+    65		  05 A-QNUM PIC ZZZ999.
+    66		  05 FILLER PIC X(43).
+    67		  05 FILLER PIC X(80).
+    68		  05 FILLER PIC X(20).
+    69            05 FILLER PIC X(13) VALUE "ASSET(PESO): ".
+    70		  05 A-TPRICE PIC ZZ,ZZ9,999.
+    71		  05 FILLER PIC X(39).
+    72		  05 FILLER PIC X(80).
+    73	      01 NOTFOUND.
+    74		  05 FILLER PIC X(15).
+    75            05 FILLER PIC X(22) VALUE " PRODUCT NOT AVAILABLE".
+    76		  05 FILLER PIC X(3).
+    77	      01 INCODE PIC X(7).
+    78	      01 BLNK-HDG.
+    79		  05 FILLER PIC X(80).
+    80        01 EOF PIC A(3) VALUE "NO".
+    81        01 ANS PIC A VALUE "Y".
+    82	      01 DEL PIC X(7) VALUE SPACES.
+    83	      01 OTHER-DETAILS.
+    84		  05 CHOICE PIC 9.
+    85		  05 NWPROD PIC X(7) VALUE SPACES.
+    86		  05 NWNAM PIC X(15) VALUE SPACES.
+    87		  05 NWQTY PIC 9(3) VALUE ZEROES.
+    88		  05 NWPRI PIC 9(5) VALUE ZEROES.
+    89            05 EOF1 PIC X(3) VALUE "NO".
+    90	      01 RECORD-TOT.
+    91		  05 COUNTS PIC 999 VALUE ZEROES.
+    92		  05 QNUM PIC 9(6) VALUE ZEROES.
+    93		  05 T-PRICE PIC 9(8) VALUE ZEROES.
+    94	      SCREEN SECTION.
+    95	      01 SCR.
+    96		  05 BLANK SCREEN.
+    97	      PROCEDURE DIVISION.
+    98	      MAIN-RTN.
+    99		  PERFORM CHOICE-RTN.
+   100		  DISPLAY SCR.
+   101		  DISPLAY HDG1
+   102			  HDG2.
+   103		  IF CHOICE = 1
+   104		  PERFORM FIRST-CHOICE
+   105		  ELSE IF CHOICE = 2
+   106		  PERFORM SECOND-CHOICE
+   107		  ELSE IF CHOICE = 3
+   108		  PERFORM THIRD-CHOICE
+   109		  ELSE
+   110		  DISPLAY SCR
+   111		  PERFORM CHOICE-RTN.
+   112		  STOP RUN.
+   113	      CHOICE-RTN.
+   114		  DISPLAY SCR.
+   115            DISPLAY (5, 35) "SALES INVENTORY".
+   116            DISPLAY (7, 10) "[1] SEARCH FOR A RECORD".
+   117            DISPLAY (8, 10) "[2] ADD A NEW RECORD"
+   118            DISPLAY (9, 10) "[3] SHOW TOTAL ASSETS"
+   119            DISPLAY (11, 10) "INPUT: "
+   120		  ACCEPT (11, 17) CHOICE.   121		  DISPLAY SCR.								14OCT19 10:31:02  PAGE	  3
+   122	      FIRST-CHOICE.
+   123		  OPEN INPUT INFILE
+   124		  OUTPUT OUTFILE.
+   125            READ INFILE AT END MOVE "YES" TO EOF.
+   126		  PERFORM INPUT-RTN.
+   127            PERFORM PROC-RTN UNTIL EOF IS EQUAL TO "YES".
+   128		  PERFORM NTFOUND.
+   129		  CLOSE INFILE, OUTFILE.
+   130	      SECOND-CHOICE.
+   131		  OPEN EXTEND INFILE.
+   132		  PERFORM EDIT-RTN.
+   133		  CLOSE INFILE.
+   134	      THIRD-CHOICE.
+   135		  OPEN INPUT INFILE
+   136		  OUTPUT TOTFILE.
+   137            READ INFILE AT END MOVE "YES" TO EOF.
+   138            PERFORM ADD-RTN UNTIL EOF IS EQUAL TO "YES".
+   139		  MOVE QNUM TO A-QNUM.
+   140		  MOVE COUNTS TO A-COUNT.
+   141		  MOVE T-PRICE TO A-TPRICE.
+   142		  WRITE TOT-REC FROM ASSETS AFTER ADVANCING 3.
+   143		  DISPLAY SCR.
+   144		  DISPLAY HDG1
+   145			  BLNK-HDG.
+   146		  DISPLAY ASSETS.
+   147	      ADD-RTN.
+   148		  ADD 1 TO COUNTS.
+   149		  ADD QUANTITY TO QNUM.
+   150		  ADD PRICE TO T-PRICE.
+   151            READ INFILE AT END MOVE "YES" TO EOF.
+   152	      EDIT-RTN.
+   153            DISPLAY (5, 20) "ENTER CODE:".
+   154		  ACCEPT (5, 35) NWPROD.
+   155            DISPLAY (7, 20) "ENTER PRODUCT NAME:".
+   156		  ACCEPT (7, 40) NWNAM.
+   157            DISPLAY (9, 20) "ENTER QTY:".
+   158		  ACCEPT (9, 35) NWQTY.
+   159            DISPLAY (11, 20) "ENTER PRICE:".
+   160		  ACCEPT (11, 35) NWPRI.
+   161		  MOVE NWPROD TO PRODUCTCODE.
+   162		  MOVE NWNAM TO PRODUCTNAME.
+   163		  MOVE NWQTY TO QUANTITY.
+   164		  MOVE NWPRI TO PRICE.
+   165		  WRITE INREC.
+   166	      DISPLAY-ALL-RTN.
+   167            READ INFILE AT END MOVE "YES" TO EOF.
+   168		  PERFORM MOVE-RTN.
+   169		  DISPLAY DISP-REC.
+   170	      INPUT-RTN.
+   171		  DISPLAY SCR.
+   172            DISPLAY (2, 35) "SALES INVENTORY".
+   173            DISPLAY (5, 10) "ENTER PRODUCT CODE:".
+   174		  ACCEPT (5, 30) INCODE.
+   175		  DISPLAY SCR.
+   176	      PROC-RTN.
+   177		  IF INCODE IS EQUAL TO PRODUCTCODE
+   178		   PERFORM MOVE-RTN
+   179		   WRITE OUTREC
+   180		   DISPLAY HDG1   181			   HDG2 							14OCT19 10:31:02  PAGE	  4
+   182		   DISPLAY DISP-REC
+   183		   CLOSE INFILE
+   184		   STOP RUN
+   185		  ELSE
+   186             READ INFILE AT END MOVE "YES" TO EOF
+   187		   END-READ.
+   188	      NTFOUND.
+   189		  DISPLAY NOTFOUND.
+   190	      MOVE-RTN.
+   191		   MOVE PRODUCTNAME TO PNAME.
+   192		   MOVE PRODUCTCODE TO PCODE.
+   193		   MOVE QUANTITY TO QTY.
+   194		   MOVE PRICE TO P.
+   195		   MOVE PRODUCTNAME TO DPNAME.
+   196		   MOVE PRODUCTCODE TO DPCODE.
+   197		   MOVE QUANTITY TO DQTY.
+   198		   MOVE PRICE TO DP.
+   199Realia COBOL Version 4.000   SN: 01-07732  C:SALES.COB					14OCT19 10:31:02  PAGE	  5
+
+
+
+				    Segment Table
+			Segment    Number     Length	    Name
+
+			  C00	     05        0B43	 SALES$C00
+			  D00	     06        0750	 SALES$D00
+
+
+			Realia COBOL Compiler Version Information
+
+			      Pass 1	 Version 4.059
+			      Pass 1a	 Version 4.025
+			      Pass 2	 Version 4.059
+			      Pass 2a	 Version 4.024
+			      Pass 3	 Version 4.083
+			      Pass 4	 Version 4.028
+
+
+			Compilation Directives in Effect
+
+				    COMP-4
+				    NODCHK
+				      OPT
+				    NOCALL
+				    NOSUBCHK
+				      STRCHK
+				      ANSITRUNC
+				    NOSMALLCOMP
+				    NODCALL
+				    NODIVZERO
+				    NOEPDCALL
+				      APOST
+				      ASCII
+				      STATABORT
+				      MOVELINK
+				    NOBLL4K
+				      ARGCHK
+				      UPLOW
+				      WRITEAFTER
+				      SOSI
+				      DIALECT-REALIA4
+
+				    ERROR LEVEL LIMIT: W
+
+			Source lines compiled:	     199
+			Compilation time (mm:ss.hh):  0:01.60
+			Compilation speed (lines/minute):  7462
+
+			Compilation date (yy/mm/dd): 19/10/14
+			     Time of day (hh:mm:ss): 10:31:03
+
+			Source length in LST file:000007105
